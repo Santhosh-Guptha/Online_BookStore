@@ -1,0 +1,48 @@
+server:
+  port: 9090
+
+eureka:
+  client:
+    service-url:
+      defaultZone : http://localhost:8761/eureka/
+  instance:
+    prefer-ip-address: true
+spring:
+  main:
+    web-application-type: reactive
+  application:
+    name: API-GATEWAY
+  cloud:
+    gateway:
+      routes:
+        - id: Security-Service
+          uri: lb://REGISTRATION-SERVICE
+          predicates:
+            - Path=/login/**,/swagger-ui.html/**,/swagger-ui/**,/v3/api-docs/**,/api-docs/**
+
+        - id: Book-Service
+          uri: lb://BOOK-SERVICE
+          predicates:
+            - Path=/catalog/**,/swagger-ui.html/**,/swagger-ui/**,/v3/api-docs/**,/api-docs/**
+          filters:
+            - AuthorizationFilter
+
+        - id: Shopping-Service
+          uri: lb://SHOPPING-SERVICE
+          predicates:
+            - Path=/cart/**,/swagger-ui.html/**,/swagger-ui/**,/v3/api-docs/**,/api-docs/**
+          filters:
+            - AuthorizationFilter
+
+        - id: UserDetails-Service
+          uri: lb://USER-SERVICE
+          predicates:
+            - Path=/users/**,/swagger-ui.html/**,/swagger-ui/**,/v3/api-docs/**,/api-docs/**
+          filters:
+            - AuthorizationFilter
+management:
+  endpoints:
+    web:
+      exposure:
+        include:
+          - "*"
